@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
-		<title>刮刮刮</title>
+		<title>電腦版刮刮履歷</title>
 		<style type="text/css">
 			#c1{
 				border: 1px solid white;
@@ -48,19 +48,19 @@
 		}
 		
 		// 監聽canvas的onmousedown事件
-		c1.ontouchstart = function(ev){ // 原本是onmousedown 
-		c1.ontouchmove = function(e){  // 原本是onmousemove 
+		c1.onmousedown = function(ev){
+		c1.onmousemove = function(e){
 			console.log(e);
-			var w = 50;	
-			var h = 50;	
-			var x = e.pageX-c1.offsetLeft - w/2;
-			var y = e.pageY-c1.offsetTop - h/2;
+			var w = 50;			// 清除筆刷的寬度
+			var h = 50;			// 清除筆刷的高度
+			var x = e.pageX-c1.offsetLeft - w/2;    // 清除筆刷的x位置
+			var y = e.pageY-c1.offsetTop - h/2;		// 清除筆刷的y位置
 			ctx1.clearRect(x,y,w,h);
 		}
 		}
-		c1.ontouchend = function(ev){ // 原本是onmouseup 
-
-		c1.ontouchmove = null; // 原本是onmousemove 
+		c1.onmouseup = function(ev){
+		// 取消onmousemove事件
+		c1.onmousemove = null;
 		}
 
 	</script>
