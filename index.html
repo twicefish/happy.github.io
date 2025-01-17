@@ -1,71 +1,86 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="UTF-8">
-		<title>電腦版刮刮履歷</title>
-		<style type="text/css">
-			#c1{
-				border: 1px solid white;
-				position: absolute;
-			}
-			
-			#c2{
-				border: 1px solid white;
-			}
-			
-			body{
-				position: relative;
-			}
-		</style>
-	</head>
-	<body>
-		
-		<canvas id="c1" width="301" height="339"></canvas>
-		
-		<canvas id="c2" width="301" height="339"></canvas>
-		
-	</body>
-	<script type="text/javascript">
-		var c1 = document.getElementById("c1");
-		var c2 = document.getElementById("c2");
-		
-		var ctx1 = c1.getContext("2d");
-		var ctx2 = c2.getContext("2d");
-		
-		
-		// 將完整履歷放到下層  canvas2
-		var imgs = new Image();
-		imgs.src = 'images/1_after.png';
-		imgs.onload = function(){
-			ctx2.drawImage(this,0,0)
-		}
-		
-		// 需要刮的履歷放在上層  canvas1
-		var img2 = new Image();
-		img2.src = 'images/1_before.png';
-		img2.onload = function(){
-			ctx1.drawImage(this,0,0)
-		}
-		
-		// 監聽canvas的onmousedown事件
-		c1.ontouchstart = function(ev){
-		//c1.onmousedown = function(ev){
-		c1.ontouchmove = function(e){
-		//c1.onmousemove = function(e){
-			console.log(e);
-			var w = 50;			// 清除筆刷的寬度
-			var h = 50;			// 清除筆刷的高度
-			var x = e.pageX-c1.offsetLeft - w/2;    // 清除筆刷的x位置
-			var y = e.pageY-c1.offsetTop - h/2;		// 清除筆刷的y位置
-			ctx1.clearRect(x,y,w,h);
-		}
-		}
-		//c1.onmouseup = function(ev){
-		c1.ontouchend = function(ev){
-		// 取消onmousemove事件
-		//c1.onmousemove = null;
-		c1.ontouchmove = null;
-		}
-
-	</script>
+<head>
+    <meta charset="UTF-8">
+    <title>電腦版刮刮履歷</title>
+    <style type="text/css">
+        #c1 {
+            border: 1px solid white;
+            position: absolute;
+            touch-action: none; /* 防止觸摸時的頁面滾動 */
+        }
+        
+        #c2 {
+            border: 1px solid white;
+        }
+        
+        body {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="c1" width="301" height="339"></canvas>
+    <canvas id="c2" width="301" height="339"></canvas>
+    
+    <script type="text/javascript">
+        var c1 = document.getElementById("c1");
+        var c2 = document.getElementById("c2");
+        var ctx1 = c1.getContext("2d");
+        var ctx2 = c2.getContext("2d");
+        
+        // 將完整履歷放到下層 canvas2
+        var imgs = new Image();
+        imgs.src = 'images/1_after.png';
+        imgs.onload = function(){
+            ctx2.drawImage(this, 0, 0);
+        }
+        
+        // 需要刮的履歷放在上層 canvas1
+        var img2 = new Image();
+        img2.src = 'images/1_before.png';
+        img2.onload = function(){
+            ctx1.drawImage(this, 0, 0);
+        }
+        
+        // 處理觸摸事件
+        function handleTouch(e) {
+            e.preventDefault(); // 防止默認行為
+            const touch = e.touches[0];
+            const rect = c1.getBoundingClientRect();
+            const w = 50; // 清除筆刷的寬度
+            const h = 50; // 清除筆刷的高度
+            const x = touch.clientX - rect.left - w/2;
+            const y = touch.clientY - rect.top - h/2;
+            ctx1.clearRect(x, y, w, h);
+        }
+        
+        // 處理滑鼠事件
+        function handleMouse(e) {
+            const rect = c1.getBoundingClientRect();
+            const w = 50;
+            const h = 50;
+            const x = e.clientX - rect.left - w/2;
+            const y = e.clientY - rect.top - h/2;
+            ctx1.clearRect(x, y, w, h);
+        }
+        
+        // 事件監聽
+        c1.addEventListener('touchstart', function(e) {
+            c1.addEventListener('touchmove', handleTouch);
+        });
+        
+        c1.addEventListener('touchend', function() {
+            c1.removeEventListener('touchmove', handleTouch);
+        });
+        
+        c1.addEventListener('mousedown', function(e) {
+            c1.addEventListener('mousemove', handleMouse);
+        });
+        
+        c1.addEventListener('mouseup', function() {
+            c1.removeEventListener('mousemove', handleMouse);
+        });
+    </script>
+</body>
 </html>
