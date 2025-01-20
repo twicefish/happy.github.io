@@ -20,8 +20,8 @@
     </style>
 </head>
 <body>
-    <canvas id="c1" width="500" height="563"></canvas>
-    <canvas id="c2" width="500" height="563"></canvas>
+    <canvas id="c1" width="500" height="935"></canvas>
+    <canvas id="c2" width="500" height="935"></canvas>
     
     <script type="text/javascript">
         var c1 = document.getElementById("c1");
@@ -31,14 +31,14 @@
         
         // 將完整履歷放到下層 canvas2
         var imgs = new Image();
-        imgs.src = 'images/2_after.png';
+        imgs.src = 'images/8_after.png';
         imgs.onload = function(){
             ctx2.drawImage(this, 0, 0);
         }
         
         // 需要刮的履歷放在上層 canvas1
         var img2 = new Image();
-        img2.src = 'images/2_before.png';
+        img2.src = 'images/8_before.png';
         img2.onload = function(){
             ctx1.drawImage(this, 0, 0);
         }
