@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>資料輸入表單</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="number"] { /* 假設 vote 是數字，也可以改回 text */
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; /* 確保 padding 不會增加寬度 */
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #status {
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>輸入資料到 Google Sheet</h1>
+    <form id="dataForm">
+        <div class="form-group">
+            <label for="classInput">班級 (Class):</label>
+            <input type="text" id="classInput" name="class" required>
+        </div>
+        <div class="form-group">
+            <label for="nameInput">姓名 (Name):</label>
+            <input type="text" id="nameInput" name="name" required>
+        </div>
+        <div class="form-group">
+            <label for="voteInput">投票/分數 (Vote):</label>
+            <input type="text" id="voteInput" name="vote" required>
+            </div>
+        <button type="submit" id="submitButton">送出資料</button>
+    </form>
+    <div id="status"></div>
+</div>
+
+<script>
+    const form = document.getElementById('dataForm');
+    const submitButton = document.getElementById('submitButton');
+    const statusDiv = document.getElementById('status');
+    // !!! 將 'YOUR_WEB_APP_URL' 替換成你部署後得到的 Google Apps Script Web App URL !!!
+    const webAppUrl = 'https://script.google.com/macros/s/AKfycbziG4xTcTQVU54nP8sIhYnfaWhAVDKtpBACZN9cOzfXa9hOp3QkbM-SIdrp9PN-PAXA/exec';
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault(); // 防止表單的預設提交行為
+
+        // 取得表單資料
+        const classValue = document.getElementById('classInput').value.trim();
+        const nameValue = document.getElementById('nameInput').value.trim();
+        const voteValue = document.getElementById('voteInput').value.trim();
+
+        // 簡單的前端驗證
+        if (!classValue || !nameValue || !voteValue) {
+            statusDiv.textContent = '所有欄位都必須填寫！';
+            statusDiv.className = 'error';
+            return; // 停止執行
+        }
+
+        // 準備要傳送的資料物件
+        const formData = {
+            class: classValue,
+            name: nameValue,
+            vote: voteValue
+        };
+
+        // 顯示處理中訊息並禁用按鈕
+        statusDiv.textContent = '正在傳送資料...';
+        statusDiv.className = ''; // 清除樣式
+        submitButton.disabled = true;
+
+        // 使用 fetch API 將資料 POST 到 Google Apps Script Web App
+        fetch(webAppUrl, {
+            method: 'POST',
+            mode: 'cors', // 雖然 Apps Script 處理簡單 POST 通常不需要 preflight，但明確指定 cors 較好
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/json'
+                // 注意：Apps Script doPost 通常接收 application/x-www-form-urlencoded 或 text/plain
+                // 但我們在 Apps Script 中使用 JSON.parse(e.postData.contents)，所以這裡送 JSON
+                // 如果遇到 CORS 問題，可能需要調整 Apps Script 端或傳送方式
+            },
+            body: JSON.stringify(formData) // 將 JavaScript 物件轉換成 JSON 字串
+        })
+        .then(response => response.json()) // 解析來自 Apps Script 的 JSON 回應
+        .then(data => {
+            console.log('Success:', data);
+            if (data.status === 'success') {
+                statusDiv.textContent = data.message || '資料已成功送出！';
+                statusDiv.className = 'success';
+                form.reset(); // 清空表單
+            } else {
+                throw new Error(data.message || '發生未知的伺服器錯誤。'); // 如果 Apps Script 回報錯誤
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            statusDiv.textContent = '傳送失敗：' + error.message;
+            statusDiv.className = 'error';
+        })
+        .finally(() => {
+            // 無論成功或失敗，重新啟用按鈕
+            submitButton.disabled = false;
+        });
+    });
+</script>
+
+</body>
+</html>
