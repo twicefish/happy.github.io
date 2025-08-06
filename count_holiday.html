@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>特休計算系統</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+        }
+
+        .summary {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .summary-item strong {
+            color: #1976d2;
+        }
+
+        .records {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .record-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #2196F3;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .record-date {
+            font-weight: bold;
+            color: #1976d2;
+        }
+
+        .record-hours {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .record-reason {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .delete-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏖️ 特休計算系統</h1>
+            <p>輕鬆管理您的特別休假</p>
+        </div>
+
+        <div class="main-content">
+            <div class="section">
+                <h2>📝 基本設定</h2>
+                <div class="form-group">
+                    <label for="totalVacation">年度特休總時數：</label>
+                    <input type="number" id="totalVacation" placeholder="例：112" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="workHours">每日工作時數：</label>
+                    <input type="number" id="workHours" value="8" min="1" max="12">
+                </div>
+                <button class="btn" onclick="updateSettings()">💾 儲存設定</button>
+
+                <h2 style="margin-top: 30px;">🎯 新增請假紀錄</h2>
+                <div class="form-group">
+                    <label for="leaveDate">請假日期：</label>
+                    <input type="date" id="leaveDate">
+                </div>
+                <div class="form-group">
+                    <label for="leaveHours">請假時數：</label>
+                    <input type="number" id="leaveHours" placeholder="例：8" min="0.5" step="0.5">
+                </div>
+                <div class="form-group">
+                    <label for="leaveReason">請假原因：</label>
+                    <input type="text" id="leaveReason" placeholder="例：家庭事務">
+                </div>
+                <button class="btn" onclick="addLeaveRecord()">➕ 新增紀錄</button>
+            </div>
+
+            <div class="section">
+                <h2>📊 特休統計</h2>
+                <div class="summary" id="summary">
+                    <div class="summary-item">
+                        <span>年度總特休：</span>
+                        <strong id="totalHours">0 小時</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>已使用：</span>
+                        <strong id="usedHours" style="color: #f44336;">0 小時</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>剩餘時數：</span>
+                        <strong id="remainingHours" style="color: #4CAF50;">0 小時</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>剩餘天數：</span>
+                        <strong id="remainingDays" style="color: #4CAF50;">0 天</strong>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <button class="btn" onclick="exportData()">📤 匯出資料</button>
+                    <button class="btn btn-danger" onclick="clearAllData()">🗑️ 清除所有資料</button>
+                </div>
+
+                <h2>📋 請假紀錄</h2>
+                <div class="records" id="records">
+                    <p style="text-align: center; color: #999;">尚無請假紀錄</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 系統初始化
+        let vacationData = {
+            totalVacation: 0,
+            workHours: 8,
+            records: []
+        };
+
+        // 載入儲存的資料
+        function loadData() {
+            const saved = localStorage.getItem('vacationData');
+            if (saved) {
+                vacationData = JSON.parse(saved);
+                document.getElementById('totalVacation').value = vacationData.totalVacation;
+                document.getElementById('workHours').value = vacationData.workHours;
+            }
+            updateDisplay();
+        }
+
+        // 儲存資料
+        function saveData() {
+            localStorage.setItem('vacationData', JSON.stringify(vacationData));
+        }
+
+        // 更新設定
+        function updateSettings() {
+            const totalVacation = parseFloat(document.getElementById('totalVacation').value) || 0;
+            const workHours = parseFloat(document.getElementById('workHours').value) || 8;
+
+            if (totalVacation <= 0) {
+                alert('❌ 請輸入有效的年度特休總時數！');
+                return;
+            }
+
+            vacationData.totalVacation = totalVacation;
+            vacationData.workHours = workHours;
+            saveData();
+            updateDisplay();
+            
+            alert('✅ 設定已儲存！');
+        }
+
+        // 新增請假紀錄
+        function addLeaveRecord() {
+            const date = document.getElementById('leaveDate').value;
+            const hours = parseFloat(document.getElementById('leaveHours').value);
+            const reason = document.getElementById('leaveReason').value.trim();
+
+            if (!date) {
+                alert('❌ 請選擇請假日期！');
+                return;
+            }
+
+            if (!hours || hours <= 0) {
+                alert('❌ 請輸入有效的請假時數！');
+                return;
+            }
+
+            if (!reason) {
+                alert('❌ 請輸入請假原因！');
+                return;
+            }
+
+            const usedHours = vacationData.records.reduce((sum, record) => sum + record.hours, 0);
+            if (usedHours + hours > vacationData.totalVacation) {
+                if (!confirm('⚠️ 此次請假將超過剩餘特休時數，確定要新增嗎？')) {
+                    return;
+                }
+            }
+
+            const record = {
+                id: Date.now(),
+                date: date,
+                hours: hours,
+                reason: reason,
+                addedAt: new Date().toISOString()
+            };
+
+            vacationData.records.push(record);
+            vacationData.records.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            saveData();
+            updateDisplay();
+
+            // 清空表單
+            document.getElementById('leaveDate').value = '';
+            document.getElementById('leaveHours').value = '';
+            document.getElementById('leaveReason').value = '';
+
+            alert('✅ 請假紀錄已新增！');
+        }
+
+        // 刪除請假紀錄
+        function deleteRecord(id) {
+            if (!confirm('⚠️ 確定要刪除此紀錄嗎？')) {
+                return;
+            }
+
+            vacationData.records = vacationData.records.filter(record => record.id !== id);
+            saveData();
+            updateDisplay();
+        }
+
+        // 更新顯示
+        function updateDisplay() {
+            const usedHours = vacationData.records.reduce((sum, record) => sum + record.hours, 0);
+            const remainingHours = vacationData.totalVacation - usedHours;
+            const remainingDays = remainingHours / vacationData.workHours;
+
+            document.getElementById('totalHours').textContent = `${vacationData.totalVacation} 小時`;
+            document.getElementById('usedHours').textContent = `${usedHours} 小時`;
+            document.getElementById('remainingHours').textContent = `${remainingHours} 小時`;
+            document.getElementById('remainingDays').textContent = `${remainingDays.toFixed(1)} 天`;
+
+            // 更新紀錄顯示
+            const recordsContainer = document.getElementById('records');
+            if (vacationData.records.length === 0) {
+                recordsContainer.innerHTML = '<p style="text-align: center; color: #999;">尚無請假紀錄</p>';
+            } else {
+                recordsContainer.innerHTML = vacationData.records.map(record => `
+                    <div class="record-item">
+                        <div class="record-header">
+                            <span class="record-date">${new Date(record.date).toLocaleDateString('zh-TW')}</span>
+                            <div>
+                                <span class="record-hours">${record.hours} 小時</span>
+                                <button class="delete-btn" onclick="deleteRecord(${record.id})">🗑️</button>
+                            </div>
+                        </div>
+                        <div class="record-reason">${record.reason}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // 匯出資料
+        function exportData() {
+            const dataStr = JSON.stringify(vacationData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `特休資料_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // 清除所有資料
+        function clearAllData() {
+            if (!confirm('⚠️ 確定要清除所有資料嗎？此操作無法復原！')) {
+                return;
+            }
+
+            vacationData = {
+                totalVacation: 0,
+                workHours: 8,
+                records: []
+            };
+
+            localStorage.removeItem('vacationData');
+            
+            document.getElementById('totalVacation').value = '';
+            document.getElementById('workHours').value = '8';
+            
+            updateDisplay();
+            alert('✅ 所有資料已清除！');
+        }
+
+        // 頁面載入時初始化
+        window.addEventListener('load', loadData);
+    </script>
+</body>
+</html>
