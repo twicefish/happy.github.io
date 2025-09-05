@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>工作日誌</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h2 { margin-top: 0; }
+    form, table { margin-bottom: 20px; }
+    input, textarea, select, button { margin: 5px; padding: 6px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    tr:nth-child(even) { background: #f9f9f9; }
+    .modal {
+      display: none; /* 預設隱藏編輯視窗 */
+      position: fixed; z-index: 1; left: 0; top: 0;
+      width: 100%; height: 100%; background: rgba(0,0,0,0.5);
+    }
+    .modal-content {
+      background: #fff; margin: 10% auto; padding: 20px; width: 300px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h2>工作日誌</h2>
+
+  <!-- 新增表單 -->
+  <form id="logForm">
+    <input type="date" id="date" required>
+    <input type="text" id="event" placeholder="事件" required>
+    <input type="text" id="dept" placeholder="處室">
+    <input type="text" id="target" placeholder="對象">
+    <input type="text" id="note" placeholder="備註">
+    <button type="submit">新增</button>
+  </form>
+
+  <!-- 日期篩選 -->
+  <label>選擇日期：</label>
+  <input type="date" id="filterDate">
+  <button onclick="renderTable()">查詢</button>
+  <button onclick="exportCSV()">匯出 CSV</button>
+
+  <!-- 清單表格 -->
+  <table id="eventTable">
+    <thead>
+      <tr>
+        <th>日期</th><th>事件</th><th>處室</th><th>對象</th><th>備註</th><th>操作</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- 編輯視窗（彈出框） -->
+  <div class="modal" id="editModal">
+    <div class="modal-content">
+      <h3>編輯事件</h3>
+      <form id="editForm">
+        <input type="date" id="editDate" required><br>
+        <input type="text" id="editEvent" required><br>
+        <input type="text" id="editDept"><br>
+        <input type="text" id="editTarget"><br>
+        <input type="text" id="editNote"><br>
+        <button type="submit">儲存</button>
+        <button type="button" onclick="closeModal()">取消</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ==============================
+    // 全域變數
+    // ==============================
+
+    // 從 LocalStorage 載入已存的日誌，若沒有則給空陣列
+    let logs = JSON.parse(localStorage.getItem('logs')) || [];
+
+    // 記錄目前要編輯的事件 index
+    let editIndex = null;
+
+    // 抓取 DOM 元素
+    const logForm = document.getElementById('logForm');
+    const eventTable = document.querySelector('#eventTable tbody');
+    const editModal = document.getElementById('editModal');
+    const editForm = document.getElementById('editForm');
+
+    // ==============================
+    // 新增事件
+    // ==============================
+    logForm.addEventListener('submit', e => {
+      e.preventDefault(); // 阻止表單的預設送出行為（避免刷新頁面）
+
+      // 建立一筆日誌物件
+      const log = {
+        date: document.getElementById('date').value,
+        event: document.getElementById('event').value,
+        dept: document.getElementById('dept').value,
+        target: document.getElementById('target').value,
+        note: document.getElementById('note').value
+      };
+
+      // 推進 logs 陣列
+      logs.push(log);
+
+      // 儲存到 LocalStorage
+      localStorage.setItem('logs', JSON.stringify(logs));
+
+      // 清空表單
+      logForm.reset();
+
+      // 重新渲染表格
+      renderTable();
+    });
+
+    // ==============================
+    // 渲染表格（顯示資料）
+    // ==============================
+    function renderTable() {
+      const filterDate = document.getElementById('filterDate').value;
+      eventTable.innerHTML = ''; // 清空表格內容
+
+      logs.forEach((log, index) => {
+        // 若有選擇日期，就只顯示該日期的資料
+        if (!filterDate || log.date === filterDate) {
+          const row = `<tr>
+            <td>${log.date}</td>
+            <td>${log.event}</td>
+            <td>${log.dept}</td>
+            <td>${log.target}</td>
+            <td>${log.note}</td>
+            <td>
+              <button onclick="openModal(${index})">編輯</button>
+              <button onclick="deleteLog(${index})">刪除</button>
+            </td>
+          </tr>`;
+          eventTable.innerHTML += row;
+        }
+      });
+    }
+
+    // ==============================
+    // 編輯功能：開啟視窗
+    // ==============================
+    function openModal(index) {
+      editIndex = index; // 記錄要編輯的事件
+      const log = logs[index];
+
+      // 把資料放進編輯表單
+      document.getElementById('editDate').value = log.date;
+      document.getElementById('editEvent').value = log.event;
+      document.getElementById('editDept').value = log.dept;
+      document.getElementById('editTarget').value = log.target;
+      document.getElementById('editNote').value = log.note;
+
+      // 顯示視窗
+      editModal.style.display = 'block';
+    }
+
+    // 關閉編輯視窗
+    function closeModal() {
+      editModal.style.display = 'none';
+    }
+
+    // ==============================
+    // 儲存編輯
+    // ==============================
+    editForm.addEventListener('submit', e => {
+      e.preventDefault();
+
+      // 更新 logs 陣列裡的資料
+      logs[editIndex] = {
+        date: document.getElementById('editDate').value,
+        event: document.getElementById('editEvent').value,
+        dept: document.getElementById('editDept').value,
+        target: document.getElementById('editTarget').value,
+        note: document.getElementById('editNote').value
+      };
+
+      // 存回 LocalStorage
+      localStorage.setItem('logs', JSON.stringify(logs));
+
+      // 關閉視窗 + 更新表格
+      closeModal();
+      renderTable();
+    });
+
+    // ==============================
+    // 刪除事件
+    // ==============================
+    function deleteLog(index) {
+      if (confirm("確定要刪除這筆事件嗎？")) {
+        logs.splice(index, 1); // 刪掉指定的事件
+        localStorage.setItem('logs', JSON.stringify(logs));
+        renderTable(); // 重新顯示
+      }
+    }
+
+    // ==============================
+    // 匯出 CSV
+    // ==============================
+    function exportCSV() {
+      if (logs.length === 0) {
+        alert("目前沒有資料可匯出！");
+        return;
+      }
+
+      // 建立 CSV 內容，第一列是標題
+      let csvContent = "日期,事件,處室,對象,備註\n";
+
+      // 一行一行加進去
+      logs.forEach(log => {
+        csvContent += `${log.date},${log.event},${log.dept},${log.target},${log.note}\n`;
+      });
+
+      // 建立一個 Blob 物件，模擬檔案下載
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+
+      // 建立一個隱藏的超連結，觸發下載
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "工作日誌.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // ==============================
+    // 預設載入（顯示資料）
+    // ==============================
+    renderTable();
+  </script>
+</body>
+</html>
