@@ -229,6 +229,12 @@
     // 預設載入（顯示資料）
     // ==============================
     renderTable();
+
+    // 預設將 filterDate 設為今天
+    window.addEventListener('DOMContentLoaded', () => {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('filterDate').value = today;
+    });
   </script>
 </body>
 </html>
