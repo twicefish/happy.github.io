@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#17324d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>富士山登山 Check List</title>
+<style>
+:root{--navy:#17324d;--green:#2f6b45;--bg:#f5f3ed;--card:#fff;--line:#e6e1d7;--muted:#777;--yellow:#fff5cf}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#222;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif}
+.wrap{max-width:720px;margin:auto;padding:12px 14px 40px}
+header{background:var(--navy);color:#fff;border-radius:18px;padding:18px;position:sticky;top:0;z-index:10;box-shadow:0 4px 16px #0002}
+h1{margin:0;font-size:25px}.sub{font-size:13px;opacity:.88;margin-top:3px}
+.progress{margin-top:13px;height:10px;background:#ffffff30;border-radius:99px;overflow:hidden}.bar{height:100%;width:0;background:#b9d7a8;transition:.2s}
+.stats{display:flex;justify-content:space-between;margin-top:7px;font-size:13px}
+.tools{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0}
+button{border:1px solid var(--line);background:#fff;color:#333;border-radius:12px;padding:10px 8px;font-size:14px;font-weight:600}
+.section{background:var(--card);border:1px solid var(--line);border-radius:16px;margin:10px 0;overflow:hidden}
+.section h2{margin:0;padding:13px 15px;color:var(--green);font-size:18px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.section h2 small{font-size:12px;color:var(--muted);font-weight:400}.items{display:block}.section.closed .items{display:none}
+label.item{display:flex;align-items:center;gap:12px;padding:12px 15px;border-top:1px solid var(--line);min-height:50px;cursor:pointer}
+input{width:22px;height:22px;accent-color:var(--green);flex:none}
+label.item span{font-size:16px;line-height:1.45}input:checked+span{color:#999;text-decoration:line-through}
+.note{background:var(--yellow);border:1px solid #eadb9c;border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.6;margin:12px 0}
+.done{display:none;background:#e8f3e7;border:1px solid #bfd8bd;color:#285b32;border-radius:14px;padding:13px;text-align:center;font-weight:700;margin:12px 0}.done.show{display:block}
+.footer{color:var(--muted);font-size:12px;text-align:center;margin-top:18px}
+.share{display:none}
+@media (display-mode: standalone){.share{display:block}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>富士山登山 Check List</h1>
+<div class="sub">45–50L 登山背包｜建議總重量不超過 8 kg</div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<div class="stats"><span id="count">0 / 0 已完成</span><span id="pct">0%</span></div>
+</header>
+
+<div class="tools">
+<button onclick="checkAll()">✓ 全部勾選</button>
+<button onclick="resetAll()">↺ 全部清除</button>
+<button onclick="sharePage()">↗ 分享</button>
+</div>
+
+<div id="done" class="done">🎉 清單全部完成，可以出發了！</div>
+
+<div class="section">
+<h2 onclick="toggle(this)">🎒 背負／衣物 <small>點擊收合</small></h2><div class="items">
+<label class="item"><input type="checkbox"><span>登山背包</span></label>
+<label class="item"><input type="checkbox"><span>透氣長袖、短袖衣褲（棉質衣物不宜）</span></label>
+<label class="item"><input type="checkbox"><span>一套備用替換衣褲</span></label>
+<label class="item"><input type="checkbox"><span>行進中層</span></label>
+<label class="item"><input type="checkbox"><span>保暖外套（化纖或羽絨）</span></label>
+<label class="item"><input type="checkbox"><span>遮陽帽、保暖毛帽</span></label>
+<label class="item"><input type="checkbox"><span>袖套</span></label>
+
+</div></div>
+
+<div class="section">
+<h2 onclick="toggle(this)">🥾 行進裝備 <small>點擊收合</small></h2><div class="items">
+<label class="item"><input type="checkbox"><span>登山杖、手套</span></label>
+<label class="item"><input type="checkbox"><span>登山鞋（勿穿運動鞋／慢跑鞋）</span></label>
+<label class="item"><input type="checkbox"><span>襪子(厚襪、羊毛襪)</span></label>
+<label class="item"><input type="checkbox"><span>頭燈（含備用電池）</span></label>
+</div></div>
+
+<div class="section">
+<h2 onclick="toggle(this)">🌧️ 保暖防雨 <small>點擊收合</small></h2><div class="items">
+<label class="item"><input type="checkbox"><span>防水外套</span></label>
+<label class="item"><input type="checkbox"><span>雨件式雨衣褲（輕便雨衣不可，小飛俠雨衣不可）</span></label>
+<label class="item"><input type="checkbox"><span>背包外層防雨套</span></label>
+<label class="item"><input type="checkbox"><span>防水內層</span></label>
+</div></div>
+
+<div class="section">
+<h2 onclick="toggle(this)">🔋 補給與電子 <small>點擊收合</small></h2><div class="items">
+<label class="item"><input type="checkbox"><span>個人行動糧</span></label>
+<label class="item"><input type="checkbox"><span>行動電源、充電線＋豆腐頭</span></label>
+<label class="item"><input type="checkbox"><span>飲用水（1–2L）、保溫瓶（看個人需求）</span></label>
+</div></div>
+
+<div class="section">
+<h2 onclick="toggle(this)">🧴 個人用品 <small>點擊收合</small></h2><div class="items">
+<label class="item"><input type="checkbox"><span>個人用藥品</span></label>
+<label class="item"><input type="checkbox"><span>衛生紙、衛生用品</span></label>
+</div></div>
+
+<div class="section">
+<h2 onclick="toggle(this)">🪪 其他必備 <small>點擊收合</small></h2><div class="items">
+<label class="item"><input type="checkbox"><span>塑膠袋數個（防雨打包可用）</span></label>
+<label class="item"><input type="checkbox"><span>日常現金（食物、廁所、紀念品採購；建議攜帶至少 20,000 日幣）</span></label>
+<label class="item"><input type="checkbox"><span>身分證件（護照務必隨身攜帶）</span></label>
+</div></div>
+
+<div class="note"><strong>☔ 夏季注意：</strong>容易遇雨，打包時注意「內層防水＋外層背包套」。</div>
+<div class="footer">山屋會提供早餐、晚餐、睡眠系統</div>
+</div>
+
+<script>
+const boxes=[...document.querySelectorAll('input[type=checkbox]')];
+boxes.forEach((b,i)=>{b.checked=localStorage.getItem('fuji-check-'+i)==='1';b.addEventListener('change',()=>{localStorage.setItem('fuji-check-'+i,b.checked?'1':'0');update()})});
+function update(){let done=boxes.filter(b=>b.checked).length,total=boxes.length,pct=Math.round(done/total*100);document.getElementById('count').textContent=`${done} / ${total} 已完成`;document.getElementById('pct').textContent=pct+'%';document.getElementById('bar').style.width=pct+'%';document.getElementById('done').classList.toggle('show',done===total)}
+function checkAll(){boxes.forEach((b,i)=>{b.checked=true;localStorage.setItem('fuji-check-'+i,'1')});update()}
+function resetAll(){if(!confirm('確定要全部取消勾選嗎？'))return;boxes.forEach((b,i)=>{b.checked=false;localStorage.setItem('fuji-check-'+i,'0')});update()}
+function toggle(h){h.parentElement.classList.toggle('closed')}
+async function sharePage(){if(navigator.share){try{await navigator.share({title:'富士山登山 Check List',text:'富士山登山行前裝備清單',url:location.href})}catch(e){}}else{await navigator.clipboard?.writeText(location.href);alert('網址已複製，可以貼給朋友。')}}
+update();
+</script>
+</body>
+</html>
